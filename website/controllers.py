@@ -1,38 +1,20 @@
+from flask import Flask, render_template, request, jsonify
+import heapq
 import csv
 import math
-from amadeus import Client, ResponseError
-from datetime import datetime
+import datetime
+from amadeus import Client
 
+
+# Initialize Amadeus client
 amadeus = Client(
     client_id='BxsFW8YgIcfqCGSiwk1GPvcJnttW266T',
     client_secret='WnFBmc33acG9bWHf'
 )
 
-def get_flight_offers(origin, destination):
-    date = datetime.today().strftime('%Y-%m-%d')
-    flight_offers = []
-    try:
-        response = amadeus.shopping.flight_offers_search.get(
-            originLocationCode=origin,
-            destinationLocationCode=destination,
-            departureDate=date,
-            adults=1,
-            nonStop='true',
-            currencyCode='SGD',
-            max=5
-        )
+# Define helper functions
 
-        for offer in response.data:
-            flight_offers.append({
-                "carrierCode": offer['itineraries'][0]['segments'][0]['carrierCode'],
-                "priceSGD": offer['price']['total']
-            })
-
-    except ResponseError as error:
-        print(error)
-
-    return flight_offers
-
+# Function to calculate the distance between two points given their latitude and longitude
 def calculate_distance(lat1, lon1, lat2, lon2):
     R = 6371.0
     lat1_rad = math.radians(lat1)
@@ -46,6 +28,7 @@ def calculate_distance(lat1, lon1, lat2, lon2):
     distance = R * c
     return distance
 
+# Function to read airports from a CSV file and return a dictionary
 def read_airports_from_csv(filename):
     airports = {}
     with open(filename, newline='', encoding='utf-8') as csvfile:
@@ -58,70 +41,121 @@ def read_airports_from_csv(filename):
             airports[iata_code] = {'country': country, 'coords': (lat, lon)}
     return airports
 
+# Function to construct the graph dictionary
 def construct_graph(airports):
     graph = {}
     for origin_iata, origin_data in airports.items():
         origin_country = origin_data['country']
-        connections = []
+        distances = {}
         for dest_iata, dest_data in airports.items():
             if origin_iata != dest_iata and origin_country != dest_data['country']:
                 origin_coords = origin_data['coords']
                 dest_coords = dest_data['coords']
                 distance = calculate_distance(origin_coords[0], origin_coords[1], dest_coords[0], dest_coords[1])
-                connections.append((dest_iata, distance))
-        connections.sort(key=lambda x: x[1])
-        graph[origin_iata] = [conn[0] for conn in connections]
+                distances[dest_iata] = distance
+        graph[origin_iata] = distances
     return graph
 
-def dfs(graph, current, destination, max_layovers, path, routes, max_routes, airports):
-    if len(path) - 1 > max_layovers + 1 or len(routes) >= max_routes:
-        return
-    if current == destination:
-        routes.append(path)
-        return
-    for neighbor in graph.get(current, []):
-        if neighbor not in path:
-            dfs(graph, neighbor, destination, max_layovers, path + [neighbor], routes, max_routes, airports)
+# Function to find the shortest distance between two airports using Dijkstra's algorithm
+def dijkstra(graph, start, end):
+    distances = {node: float('inf') for node in graph}
+    distances[start] = 0
+    pq = [(0, start)]
+    while pq:
+        current_distance, current_node = heapq.heappop(pq)
+        if current_distance > distances[current_node]:
+            continue
+        for neighbor, distance in graph[current_node].items():
+            total_distance = current_distance + distance
+            if total_distance < distances[neighbor]:
+                distances[neighbor] = total_distance
+                heapq.heappush(pq, (total_distance, neighbor))
+    return distances[end]
 
-def get_flight_routes(origin, destination, max_layovers, airports):
-    print("Accessing get flight routes ()")
-    print(origin)
-    print(destination)
-    print(max_layovers)
-    graph = construct_graph(airports)
-    max_routes = 10
+# Function to check if a flight offer exists for a given route segment in the response data
+def check_flight_offer(origin, destination, response_data):
+    for itinerary in response_data:
+        segments = itinerary['itineraries'][0]['segments']
+        for segment in segments:
+            if segment['departure']['iataCode'] == origin and segment['arrival']['iataCode'] == destination:
+                return True
+    return False
+
+# Function to retrieve flight prices for a given route
+def get_flight_prices(origin, destination, response_data):
+    for itinerary in response_data:
+        segments = itinerary['itineraries'][0]['segments']
+        for segment in segments:
+            if segment['departure']['iataCode'] == origin and segment['arrival']['iataCode'] == destination:
+                return float(itinerary['price']['total'])
+    return 0
+
+# Function to generate possible flight routes including layover flights using DFS algorithm
+def dfs(graph, origin, destination, max_layovers, path, response_data, visited=None):
+    if visited is None:
+        visited = set()
+    visited.add(origin)
+    if len(path) - 1 > max_layovers + 1:
+        return []
+    if origin == destination:
+        return [path]
     routes = []
- 
+    for neighbor in graph.get(origin, []):
+        if neighbor not in visited:
+            new_route = path + [neighbor]
+            if check_flight_offer(origin, neighbor, response_data):
+                if check_flight_offer(neighbor, destination, response_data):
+                    updated_routes = dfs(graph, neighbor, destination, max_layovers, new_route, response_data, visited)
+                    routes.extend(updated_routes)
+                else:
+                    if neighbor == destination:
+                        routes.append(new_route)
+    visited.remove(origin)
+    return routes
 
-    if destination in graph.get(origin, []):
-        routes.append([origin, destination])
-        print(routes)
+# Function to print flight routes with their total distances
+def print_flight_routes(graph, direct_route, routes, response_data, airports, origin, destination):
+    printed_routes = set()
+    direct_data = []
+    indirect_data = []
+    if direct_route:
+        direct_route.sort(key=lambda route: get_flight_prices(route[0], route[1], response_data))
+        direct_data = print_route_info(direct_route, response_data, graph, printed_routes)
+    elif routes:
+        routes.sort(key=lambda route: min(get_flight_prices(route[j], route[j+1], response_data) for j in range(len(route) - 1)))
+        for i, route in enumerate(routes[:10], start=1):
+            if len(route) == 2:
+                continue
+            else:
+                indirect_flight_info = print_route_info(route, response_data, graph, printed_routes)
+                if indirect_flight_info:
+                    indirect_data.extend(indirect_flight_info)
+    return direct_data, indirect_data
 
-    if max_layovers == 0:
-        direct_routes = []
-        if routes:
-            for route in routes:
-                direct_routes.append(route)
-            return direct_routes
-        else:
-            return []
-    else:
-        dfs(graph, origin, destination, max_layovers, [origin], routes, max_routes, airports)
+# Function to handle each flight information
+def print_route_info(route_data, response_data, graph, printed_routes):
+    total_distance = sum(dijkstra(graph, route_data[j], route_data[j+1]) for j in range(len(route_data) - 1))
+    route_tuple = tuple(route_data)
+    direct_flights_data = []
+    indirect_flights_data = []
+    if route_tuple not in printed_routes:
+        printed_routes.add(route_tuple)
+        unique_segments = set()
+        for itinerary in response_data:
+            for segment in itinerary['itineraries'][0]['segments']:
+                unique_segments.add((segment['departure']['iataCode'], segment['arrival']['iataCode'], segment['carrierCode'], float(itinerary['price']['total'])))
+        sorted_segments = sorted(unique_segments, key=lambda x: x[3])
+        if len(route_data) == 2:
+            for origin, destination in zip(route_data[:-1], route_data[1:]):
+                for segment in sorted_segments:
+                    if segment[0] == origin and segment[1] == destination:
+                        direct_flights_data.append(([origin, destination], round(total_distance, 2), segment[2], segment[3]))
+        elif len(route_data) > 2:
+            for i in range(len(route_data) - 1):
+                origin, destination = route_data[i], route_data[i+1]
+                for segment in sorted_segments:
+                    if segment[0] == origin and segment[1] == destination:
+                        indirect_flights_data.append((route_data, round(total_distance, 2), segment[2], segment[3]))
+    return direct_flights_data, indirect_flights_data
 
-        if routes:
-            result_routes = []
-            for route in routes:
-                total_distance = 0
-                for i in range(len(route) - 1):
-                    origin_iata = route[i]
-                    dest_iata = route[i + 1]
-                    origin_coords = airports[origin_iata]['coords']
-                    dest_coords = airports[dest_iata]['coords']
-                    distance = calculate_distance(origin_coords[0], origin_coords[1], dest_coords[0], dest_coords[1])
-                    total_distance += distance
-                route.append(total_distance)
-                result_routes.append(route)
-         
-            return result_routes
-        else:
-            return []
+
