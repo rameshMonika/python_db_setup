@@ -128,8 +128,12 @@ def print_flight_routes(graph, direct_route, routes, response_data, airports, or
                 continue
             else:
                 indirect_flight_info = print_route_info(route, response_data, graph, printed_routes)
+              
                 if indirect_flight_info:
                     indirect_data.extend(indirect_flight_info)
+                   
+        print(indirect_data)
+   
     return direct_data, indirect_data
 
 # Function to handle each flight information
@@ -150,12 +154,13 @@ def print_route_info(route_data, response_data, graph, printed_routes):
                 for segment in sorted_segments:
                     if segment[0] == origin and segment[1] == destination:
                         direct_flights_data.append(([origin, destination], round(total_distance, 2), segment[2], segment[3]))
+            return direct_flights_data
         elif len(route_data) > 2:
             for i in range(len(route_data) - 1):
                 origin, destination = route_data[i], route_data[i+1]
                 for segment in sorted_segments:
                     if segment[0] == origin and segment[1] == destination:
                         indirect_flights_data.append((route_data, round(total_distance, 2), segment[2], segment[3]))
-    return direct_flights_data, indirect_flights_data
+                        return  indirect_flights_data
 
 

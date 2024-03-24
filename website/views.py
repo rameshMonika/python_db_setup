@@ -46,39 +46,16 @@ def search_flights():
 
         if direct_flight:
             direct_data, _ = print_flight_routes(graph, direct_route, [], response_data, airports, origin, destination)
+           # _, indirect_data=()
             return jsonify({'direct_flight_data': direct_data})
+
         else:
             routes = dfs(graph, origin, destination, 2, [origin], response_data)
             
             _, indirect_data = print_flight_routes(graph, [], routes, response_data, airports, origin, destination)
+           # direct_data, _=()
             return jsonify({'indirect_flight_data': indirect_data})
+
     else:
         return jsonify({'error': 'No flight data available.'})
 
-
-# @views.route('/get_route', methods=['GET'])
-# def get_route():
-    print("get routes method started")
-    origin = request.args.get('source').upper()
-  
-    destination = request.args.get('destination').upper()
-   
-    max_layovers = int(request.args.get('layover'))
-  
-    current_dir = os.path.dirname(__file__)
-
-    filename = os.path.join(current_dir, 'data', 'airports_Asia.csv')  
-    airports = read_airports_from_csv(filename)
-    
-    flight_routes = get_flight_routes(origin, destination, max_layovers, airports=airports)
-    flight_offers = get_flight_offers(origin, destination)
-
-    print("--------------------------------- views.py (flight route) ------------------------------------------")
-
-    print(flight_routes)
-    print("--------------------------------- views.py (flight offers) ------------------------------------------")
-
-    print(flight_offers)
-  
-    
-    return jsonify({"routes": flight_routes}, {"price": flight_offers})
