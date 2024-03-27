@@ -5,11 +5,11 @@
 <h1>This is the home page</h1>
 
 <form id="routeForm">
-    <label for="origin">Origin:</label>
-    <input type="text" id="origin" name="origin" required><br>
+    
 
-    <label for="destination">Destination:</label>
-    <input type="text" id="destination" name="destination" required><br>
+    
+
+
 
     <label for="departure_date">Departure Date:</label>
     <input type="date" id="departure_date" name="departure_date" required><br>
@@ -17,7 +17,20 @@
     <input type="checkbox" id="direct_flight" name="direct_flight" value="true">
     <label for="direct_flight">Direct Flight Only</label><br>
 
+
+    <label for="destination">Destination:</label>
+    <input type="text" id="destination" class="suggestionField" list="suggestionsDest" placeholder="Enter prefix"
+        required><br>
+    <datalist id="suggestionsDest"></datalist><br>
+
+    <label for="origin">Origin:</label>
+    <input type="text" id="origin" class="suggestionField" list="suggestionsOrigin" placeholder="Enter prefix"
+        required><br>
+    <datalist id="suggestionsOrigin"></datalist><br>
+
+   
     <button type="submit">Search</button>
+   
 </form>
 
 <div id="output"></div>
@@ -29,6 +42,53 @@
 
     <div id="output"></div>
     <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+            document.getElementById("origin").addEventListener("input", function () {
+                console.log("Input event fired origin");
+                var prefixValue = this.value;
+                var xhr = new XMLHttpRequest();
+                xhr.open("GET", "/suggest?prefix=" + prefixValue, true);
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState == 4 && xhr.status == 200) {
+                        var data = JSON.parse(xhr.responseText);
+                        console.log(data)
+                        var suggestionsElement2 = document.getElementById("suggestionsOrigin");
+                        suggestionsElement2.innerHTML = ""; // Clear the datalist
+                        data.forEach(function (suggestion) {
+                            var option = document.createElement("option");
+                            option.value = suggestion;
+                            suggestionsElement2.appendChild(option); // Add each suggestion to the datalist
+                        });
+                    }
+                };
+                xhr.send();
+            });
+
+            document.getElementById("destination").addEventListener("input", function () {
+                console.log("Input event fired dest");
+                var prefixValue = this.value;
+                var xhr = new XMLHttpRequest();
+                xhr.open("GET", "/suggestDest?prefix2=" + prefixValue, true);
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState == 4 && xhr.status == 200) {
+                        var data = JSON.parse(xhr.responseText);
+                        console.log(data)
+                        var suggestionsElement = document.getElementById("suggestionsDest");
+                        suggestionsElement.innerHTML = ""; // Clear the datalist
+                        data.forEach(function (suggestion) {
+                            var option = document.createElement("option");
+                            option.value = suggestion;
+                            suggestionsElement.appendChild(option); // Add each suggestion to the datalist
+                        });
+                    }
+                };
+                xhr.send();
+            });
+
+
+        });
+
         document.getElementById('routeForm').addEventListener('submit', function (event) {
             event.preventDefault();
 
@@ -68,7 +128,7 @@
 
                             for (i = 0; i < data.direct_flight_data.length; i++) {
                                 var route = data.direct_flight_data[i]
-                              
+
 
                                 var codeBlock = `<div class="card w-50 mb-2">
                                     <div class="card-body">
@@ -98,6 +158,10 @@
 
 
                     }
+                    else if(data.hasOwnProperty('error')){
+                        output.innerHTML += `<p>${data.error}</p>`
+
+                    }
                     else {
                         console.log("False")
                         if (data.indirect_flight_data.length > 0) {
@@ -107,13 +171,13 @@
                                 console.log("---------------------------------------")
                                 console.log(route)
                                 console.log("---------------------------------------")
-                                var routeInfo=""
-                                for (let j = 0; j < route[0].length ; j++) {
+                                var routeInfo = ""
+                                for (let j = 0; j < route[0].length; j++) {
                                     console.log(route[0])
                                     console.log(route[0][j])
-                                    
+
                                     routeInfo += route[0][j];
-                                    if (j < route[0][j].length -1) {
+                                    if (j < route[0][j].length - 1) {
                                         routeInfo += ' -> '
 
                                     }

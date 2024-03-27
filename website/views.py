@@ -2,14 +2,44 @@ from flask import Blueprint,render_template,request, jsonify
 from flask_login import login_required,current_user
 from .controllers import read_airports_from_csv,amadeus,construct_graph,print_flight_routes,dfs
 import os
+from .trie import Trie
+import csv
 
 views=Blueprint('views',__name__)
+
+trie=Trie()
+
+
+
+
+project_dir = os.path.dirname(__file__)
+
+csv_file_path = os.path.join(project_dir, 'data', 'airports_Asia.csv')  
+
+with open(csv_file_path, 'r',encoding='utf-8') as f:
+    reader = csv.reader(f)
+    next(reader)  # Skip header row
+    for row in reader:
+        trie.insert(row[3])  # Inserting Airport Code
+
 
 @views.route('/')
 @login_required
 def home():
     return render_template("home.html",user=current_user)
 
+
+@views.route('/suggest', methods=['GET'])
+def suggest():
+    prefix = request.args.get('prefix', '')
+    suggestions = trie.get_suggestions(prefix)
+    return jsonify(suggestions)
+
+@views.route('/suggestDest', methods=['GET'])
+def suggestDest():
+    prefix2 = request.args.get('prefix2', '')
+    suggestions2 = trie.get_suggestions(prefix2)
+    return jsonify(suggestions2)
 
 @views.route('/get_route', methods=['POST'])
 def search_flights():
