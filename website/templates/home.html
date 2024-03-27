@@ -77,7 +77,7 @@
                 console.log("Input event fired dest");
                 var prefixValue = this.value;
                 var xhr = new XMLHttpRequest();
-                xhr.open("GET", "/suggestDest?prefix2=" + prefixValue, true);
+                xhr.open("GET", "/suggest?prefix=" + prefixValue, true);
                 xhr.onreadystatechange = function () {
                     if (xhr.readyState == 4 && xhr.status == 200) {
                         var data = JSON.parse(xhr.responseText);

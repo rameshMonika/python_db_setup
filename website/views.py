@@ -35,11 +35,6 @@ def suggest():
     suggestions = trie.get_suggestions(prefix)
     return jsonify(suggestions)
 
-@views.route('/suggestDest', methods=['GET'])
-def suggestDest():
-    prefix2 = request.args.get('prefix2', '')
-    suggestions2 = trie.get_suggestions(prefix2)
-    return jsonify(suggestions2)
 
 @views.route('/get_route', methods=['POST'])
 def search_flights():
