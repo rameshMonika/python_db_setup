@@ -48,6 +48,7 @@ def search_flights():
     destination = data.get('destination')
     departure_date = data.get('departure_date')
     direct_flight = data.get('direct_flight')
+    sortOrder = data.get('sortOrder')
 
     # Read airports data from CSV file
     current_dir = os.path.dirname(__file__)
@@ -75,14 +76,14 @@ def search_flights():
         direct_route = [origin, destination] if destination in graph.get(origin, []) else None
 
         if direct_flight:
-            direct_data, _ = print_flight_routes(graph, direct_route, [], response_data, airports, origin, destination)
+            direct_data, _ = print_flight_routes(graph, direct_route, [], response_data, airports, origin, destination,sort_order=sortOrder)
            # _, indirect_data=()
             return jsonify({'direct_flight_data': direct_data})
 
         else:
             routes = dfs(graph, origin, destination, 2, [origin], response_data)
             
-            _, indirect_data = print_flight_routes(graph, [], routes, response_data, airports, origin, destination)
+            _, indirect_data = print_flight_routes(graph, [], routes, response_data, airports, origin, destination,sort_order=sortOrder)
            # direct_data, _=()
             return jsonify({'indirect_flight_data': indirect_data})
 

@@ -28,6 +28,14 @@
         required><br>
     <datalist id="suggestionsOrigin"></datalist><br>
 
+    <label for="sortOrder">Sort Order:</label>
+    <select id="sortOrder" name="sortOrder">
+        <option value="ascending">Ascending</option>
+        <option value="descending">Descending</option>
+    </select><br>
+
+
+
    
     <button type="submit">Search</button>
    
@@ -97,12 +105,14 @@
             var destination = form.elements.destination.value;
             var departureDate = form.elements.departure_date.value;
             var directFlight = form.elements.direct_flight.checked;
+            var sortOrder = form.elements.sortOrder.value;
 
             var searchData = {
                 origin: origin,
                 destination: destination,
                 departure_date: departureDate,
-                direct_flight: directFlight
+                direct_flight: directFlight,
+                sortOrder: sortOrder
             };
 
             // Send data to backend for processing
