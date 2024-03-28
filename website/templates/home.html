@@ -5,42 +5,75 @@
 <h1>This is the home page</h1>
 
 <form id="routeForm">
-    
 
-    
+  
 
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label for="origin">From:</label>
+            <input type="text" class="form-control suggestionField" list="suggestionsOrigin" id="origin"
+                placeholder="Enter origin">
 
-
-    <label for="departure_date">Departure Date:</label>
-    <input type="date" id="departure_date" name="departure_date" required><br>
-
-    <input type="checkbox" id="direct_flight" name="direct_flight" value="true">
-    <label for="direct_flight">Direct Flight Only</label><br>
-
-    <label for="origin">Origin:</label>
-    <input type="text" id="origin" class="suggestionField" list="suggestionsOrigin" placeholder="Enter prefix"
-        required><br>
-    <datalist id="suggestionsOrigin"></datalist><br>
-
-
-    <label for="destination">Destination:</label>
-    <input type="text" id="destination" class="suggestionField" list="suggestionsDest" placeholder="Enter prefix"
-        required><br>
-    <datalist id="suggestionsDest"></datalist><br>
-
-   
-
-    <label for="sortOrder">Sort Order:</label>
-    <select id="sortOrder" name="sortOrder">
-        <option value="ascending">Ascending</option>
-        <option value="descending">Descending</option>
-    </select><br>
+            <datalist id="suggestionsOrigin"></datalist><br>
+        </div>
 
 
 
-   
-    <button type="submit">Search</button>
-   
+        <div class="form-group col-md-6">
+            <label for="from">To:</label>
+            <input type="text" class="form-control suggestionField" list="suggestionsOrigin" id="destination"
+                placeholder="Enter origin">
+
+            <datalist id="suggestionsDest"></datalist><br>
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label for="departure_date">Date of Departure:</label>
+        <input type="date" class="form-control" id="departure_date">
+        </div>
+
+
+
+        <div class="form-group col-md-6">
+            <label for="sortOrder">Sort Order:</label>
+            <select class="form-control" id="sortOrder" name="sortOrder">
+                <option value="ascending">Distance Ascending</option>
+                <option value="descending">Distance Descending</option>
+            </select><br>
+        </div>
+      
+        
+    </div>
+
+
+
+
+
+
+ 
+    <div class="col-sm-10">
+        <div class="form-check">
+            <input type="checkbox" id="direct_flight" name="direct_flight" value="true">
+            <label for="direct_flight">Direct Flight Only</label><br>
+        </div>
+      </div>
+
+
+
+
+
+
+    <div class="form-group row">
+        <div class="col-sm-10">
+          <button type="submit" class="btn btn-primary">Search</button>
+        </div>
+      </div>
+
+
+
+
 </form>
 
 
@@ -135,30 +168,30 @@
                     output.innerHTML = ''; // 
                     optimalRouteOutput.innerHTML = ''; // Clear the output div
 
-                    
+
                     if (data[1].hasOwnProperty('optimal_route_data')) {
                         console.log("True")
                         console.log(data[1])
-                   
+
 
                         var route = data[1].optimal_route_data
-                              
-
-                                var routeInfo = ""
-                                for (let j = 0; j < route[0][0].length; j++) {
-                                    
-                                    console.log(route[0][0][j])
-
-                                    routeInfo += route[0][0][j];
-                                    if (j < route[0][0][j].length - 2) {
-                                        routeInfo += ' -> '
-
-                                    }
-
-                                }
 
 
-                                var codeBlock = `<div class="card w-50 mb-2">
+                        var routeInfo = ""
+                        for (let j = 0; j < route[0][0].length; j++) {
+
+                            console.log(route[0][0][j])
+
+                            routeInfo += route[0][0][j];
+                            if (j < route[0][0][j].length - 2) {
+                                routeInfo += ' -> '
+
+                            }
+
+                        }
+
+
+                        var codeBlock = `<div class="card w-50 mb-2">
                                     <div class="card-body">
                                         <span class="badge badge-info">Best Optimal</span>
                                     <h5 class="card-title">Source Airport: ${route[0][0][0]}</h5>
@@ -173,21 +206,21 @@
                                     </div>`;
 
 
-                                optimalRouteOutput.innerHTML += codeBlock
+                        optimalRouteOutput.innerHTML += codeBlock
 
 
 
 
 
-                           
 
 
 
-                        
+
+
 
 
                     }
-                    
+
 
 
 
@@ -201,7 +234,7 @@
 
                                 var routeInfo = ""
                                 for (let j = 0; j < route[0].length; j++) {
-                                    
+
                                     console.log(route[0][j])
 
                                     routeInfo += route[0][j];
@@ -242,8 +275,8 @@
 
 
                     }
-                    
-                    else if(data.hasOwnProperty('error')){
+
+                    else if (data.hasOwnProperty('error')) {
                         output.innerHTML += `<p>${data.error}</p>`
 
                     }
@@ -258,7 +291,7 @@
                                 console.log("---------------------------------------")
                                 var routeInfo = ""
                                 for (let j = 0; j < route[0].length; j++) {
-                                    
+
                                     console.log(route[0][j])
 
                                     routeInfo += route[0][j];

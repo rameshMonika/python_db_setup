@@ -26,6 +26,8 @@ def calculate_distance(lat1, lon1, lat2, lon2):
     a = math.sin(dlat / 2)**2 + math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(dlon / 2)**2
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
     distance = R * c
+   
+    distance = round(distance, 2)
     return distance
 
 # Function to read airports from a CSV file and return a dictionary
