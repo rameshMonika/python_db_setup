@@ -149,6 +149,7 @@ def print_flight_routes(graph, direct_route, routes, response_data, airports, or
     if direct_route:
         direct_route.sort(key=lambda route: get_flight_prices(route[0], route[1], response_data))
         direct_data = print_route_info(direct_route, response_data, graph, printed_routes)
+        direct_data = sort_by_distance(direct_data, sort_order)
     elif routes:
          routes.sort(key=lambda route: min(get_flight_prices(route[j], route[j+1], response_data) for j in range(len(route) - 1)))
          for i, route in enumerate(routes[:10], start=1):
