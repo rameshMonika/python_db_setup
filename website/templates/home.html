@@ -17,16 +17,18 @@
     <input type="checkbox" id="direct_flight" name="direct_flight" value="true">
     <label for="direct_flight">Direct Flight Only</label><br>
 
+    <label for="origin">Origin:</label>
+    <input type="text" id="origin" class="suggestionField" list="suggestionsOrigin" placeholder="Enter prefix"
+        required><br>
+    <datalist id="suggestionsOrigin"></datalist><br>
+
 
     <label for="destination">Destination:</label>
     <input type="text" id="destination" class="suggestionField" list="suggestionsDest" placeholder="Enter prefix"
         required><br>
     <datalist id="suggestionsDest"></datalist><br>
 
-    <label for="origin">Origin:</label>
-    <input type="text" id="origin" class="suggestionField" list="suggestionsOrigin" placeholder="Enter prefix"
-        required><br>
-    <datalist id="suggestionsOrigin"></datalist><br>
+   
 
     <label for="sortOrder">Sort Order:</label>
     <select id="sortOrder" name="sortOrder">
@@ -139,6 +141,19 @@
                             for (i = 0; i < data.direct_flight_data.length; i++) {
                                 var route = data.direct_flight_data[i]
 
+                                var routeInfo = ""
+                                for (let j = 0; j < route[0].length; j++) {
+                                    
+                                    console.log(route[0][j])
+
+                                    routeInfo += route[0][j];
+                                    if (j < route[0][j].length - 2) {
+                                        routeInfo += ' -> '
+
+                                    }
+
+                                }
+
 
                                 var codeBlock = `<div class="card w-50 mb-2">
                                     <div class="card-body">
@@ -147,6 +162,7 @@
                                     <p class="card-text">Distance: ${route[1]} km</p>
                                     <p class="card-text">Airline: ${route[2]} </p>
                                     <p class="card-text">Price: $${route[3]} </p>
+                                    <p class="card-text">Route: ${routeInfo}</p>
 
                                     <a href="#" class="btn btn-primary">View More</a>
                                     </div>
@@ -183,7 +199,7 @@
                                 console.log("---------------------------------------")
                                 var routeInfo = ""
                                 for (let j = 0; j < route[0].length; j++) {
-                                    console.log(route[0])
+                                    
                                     console.log(route[0][j])
 
                                     routeInfo += route[0][j];

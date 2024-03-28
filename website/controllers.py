@@ -150,16 +150,25 @@ def print_flight_routes(graph, direct_route, routes, response_data, airports, or
         direct_route.sort(key=lambda route: get_flight_prices(route[0], route[1], response_data))
         direct_data = print_route_info(direct_route, response_data, graph, printed_routes)
     elif routes:
-        routes.sort(key=lambda route: min(get_flight_prices(route[j], route[j+1], response_data) for j in range(len(route) - 1)))
-        for route_data in routes[:10]:
-            total_distance = sum(dijkstra(graph, route_data[j], route_data[j+1]) for j in range(len(route_data) - 1))
-            indirect_flight_info = print_route_info(route_data, response_data, graph, printed_routes)
-            if indirect_flight_info:
-                indirect_data.extend(indirect_flight_info)
-        # Sorting routes based on distance
-        indirect_data = sort_by_distance(indirect_data, sort_order)
+         routes.sort(key=lambda route: min(get_flight_prices(route[j], route[j+1], response_data) for j in range(len(route) - 1)))
+         for i, route in enumerate(routes[:10], start=1):
+            if len(route) == 2:
+                continue
+            else:
+                indirect_flight_info = print_route_info(route, response_data, graph, printed_routes)
+              
+                if indirect_flight_info:
+                    indirect_data.extend(indirect_flight_info)
+         indirect_data = sort_by_distance(indirect_data, sort_order)
+         print(indirect_data)
+        
                    
-        print(indirect_data)
+
+        
+        
+        
+                   
+
    
     return direct_data, indirect_data
 
