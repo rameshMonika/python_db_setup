@@ -1,6 +1,6 @@
 from flask import Blueprint,render_template,request, jsonify
 from flask_login import login_required,current_user
-from .controllers import read_airports_from_csv,amadeus,construct_graph,print_flight_routes,dfs
+from .controllers import read_airports_from_csv,amadeus,construct_graph,print_flight_routes,dfs,find_optimal_route,print_optimal_route
 import os
 from .trie import Trie
 import csv
@@ -73,14 +73,23 @@ def search_flights():
         if direct_flight:
             direct_data, _ = print_flight_routes(graph, direct_route, [], response_data, airports, origin, destination,sort_order=sortOrder)
            # _, indirect_data=()
-            return jsonify({'direct_flight_data': direct_data})
+            optimal_route = find_optimal_route(graph, direct_route, [], response_data, airports, origin, destination)
+            print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+            optimal_route_data=print_optimal_route(optimal_route, response_data, graph, airports)
+            print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+
+            return jsonify({'direct_flight_data': direct_data},{'optimal_route_data':optimal_route_data})
 
         else:
             routes = dfs(graph, origin, destination, 2, [origin], response_data)
             
             _, indirect_data = print_flight_routes(graph, [], routes, response_data, airports, origin, destination,sort_order=sortOrder)
+            optimal_route = find_optimal_route(graph, direct_route, [], response_data, airports, origin, destination)
+            print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+            optimal_route_data=print_optimal_route(optimal_route, response_data, graph, airports)
+            print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
            # direct_data, _=()
-            return jsonify({'indirect_flight_data': indirect_data})
+            return jsonify({'indirect_flight_data': indirect_data},{'optimal_route_data':optimal_route_data})
 
     else:
         return jsonify({'error': 'No flight data available.'})

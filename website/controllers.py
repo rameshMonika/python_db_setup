@@ -173,6 +173,54 @@ def print_flight_routes(graph, direct_route, routes, response_data, airports, or
    
     return direct_data, indirect_data
 
+def get_airline_and_cost_for_route(origin, destination, response_data):
+    for itinerary in response_data:
+        segments = itinerary['itineraries'][0]['segments']
+        for segment in segments:
+            if segment['departure']['iataCode'] == origin and segment['arrival']['iataCode'] == destination:
+                return segment['carrierCode'], float(itinerary['price']['total'])
+    return "Unknown", 0.0
+
+# return the output instead of printing it
+
+def find_optimal_route(graph, direct_route, routes, response_data, airports, origin, destination):
+    optimal_route = None
+    optimal_cost = float('inf')
+
+    if direct_route:
+        # Calculate total cost for the direct route
+        direct_cost = get_flight_prices(direct_route[0], direct_route[1], response_data)
+        if direct_cost < optimal_cost:
+            optimal_route = direct_route
+            optimal_cost = direct_cost
+    elif routes:
+        for route in routes:
+            total_cost = sum(get_flight_prices(route[j], route[j+1], response_data) for j in range(len(route) - 1))
+            if total_cost < optimal_cost:
+                optimal_route = route
+                optimal_cost = total_cost
+
+    return optimal_route
+
+
+def print_optimal_route(optimal_route, response_data, graph, airports):
+    optimal_route_data = []
+    if optimal_route:
+        total_distance = 0
+       
+        for i in range(len(optimal_route) - 1):
+            origin, destination = optimal_route[i], optimal_route[i+1]
+            distance = dijkstra(graph, origin, destination)
+            total_distance += distance
+            airline, cost = get_airline_and_cost_for_route(origin, destination, response_data)
+           
+            optimal_route_data.append((optimal_route, airline, total_distance, cost))
+    else:
+        optimal_route_data.append(("No optimal route available.", None, None, None, None, None, None))
+    
+    return optimal_route_data
+
+
 # Function to handle each flight information
 def print_route_info(route_data, response_data, graph, printed_routes):
     total_distance = sum(dijkstra(graph, route_data[j], route_data[j+1]) for j in range(len(route_data) - 1))
