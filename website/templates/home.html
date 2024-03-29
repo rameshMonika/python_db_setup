@@ -127,6 +127,8 @@
     <script>
 
         document.addEventListener("DOMContentLoaded", function () {
+            document.getElementById("sortOrder").value = "ascending"
+
             document.getElementById("filterBtn").addEventListener("click", function () {
                 // Show the popover
                 var filterBtn = this;
@@ -145,6 +147,13 @@
                     document.getElementById("sortOrder").value = sortOrder;
                 }
             });
+        });
+
+
+        document.getElementById("sortOrder").addEventListener("change", function () {
+            var sortOrder = this.value;
+            // Update the hidden input field
+            document.getElementById("sortOrder").value = sortOrder;
         });
 
         document.addEventListener('click', function (event) {
@@ -208,7 +217,30 @@
         document.getElementById('routeForm').addEventListener('submit', function (event) {
             event.preventDefault();
             var output = document.getElementById('output');
-            output.innerHTML = '<p>Searching for results...</p>';
+            output.innerHTML = `<div class="card w-50 mb-2">
+    <div class="card-body">
+        <span class="badge badge-info">Best Optimal</span>
+        <h5 class="card-title skeleton-text"></h5>
+        <h5 class="card-title skeleton-text"></h5>
+        <p class="card-text skeleton-text"></p>
+        <p class="card-text skeleton-text"></p>
+        <p class="card-text skeleton-text"></p>
+        <p class="card-text skeleton-text"></p>
+        <a href="#" class="btn btn-primary skeleton-button"></a>
+    </div>
+</div>
+<div class="card w-50 mb-2">
+    <div class="card-body">
+        <h5 class="card-title skeleton-text"></h5>
+        <h5 class="card-title skeleton-text"></h5>
+        <p class="card-text skeleton-text"></p>
+        <p class="card-text skeleton-text"></p>
+        <p class="card-text skeleton-text"></p>
+        <p class="card-text skeleton-text"></p>
+        <a href="#" class="btn btn-primary skeleton-button"></a>
+    </div>
+</div>
+`;
 
             var optimalRouteOutput = document.getElementById('optimalRouteOutput');
             optimalRouteOutput.innerHTML = '';
@@ -423,6 +455,8 @@
                 )
                 .catch(error => {
                     console.error('Error:', error);
+                    output.innerHTML = '';
+                    output.innerHTML = '<p class="errorMsg">Invalid input!</p>';
                     // Handle error
                 });
         });
@@ -448,6 +482,35 @@
 
         .form-check {
             margin-left: 4em;
+        }
+
+        /* CSS Styles for Skeleton Loading Effect */
+        .skeleton-text {
+            width: 100%;
+            height: 16px;
+            /* Adjust height as needed */
+            background-color: #f0f0f0;
+            /* Light gray */
+            margin-bottom: 8px;
+            /* Adjust spacing between skeleton lines */
+        }
+
+        .skeleton-button {
+            width: 100px;
+            /* Adjust width as needed */
+            height: 32px;
+            /* Adjust height as needed */
+            background-color: #007bff;
+            /* Blue */
+            border: none;
+            border-radius: 4px;
+        }
+
+        p.errorMsg {
+            text-align: center;
+            font-size: 30px;
+            color: #dc828a;
+            margin-top: 4em;
         }
     </style>
 
