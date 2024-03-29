@@ -2,49 +2,84 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-<h1>This is the home page</h1>
+
 
 <form id="routeForm">
 
-  
+
 
     <div class="form-row">
-        <div class="form-group col-md-6">
-            <label for="origin">From:</label>
-            <input type="text" class="form-control suggestionField" list="suggestionsOrigin" id="origin"
-                placeholder="Enter origin">
-
-            <datalist id="suggestionsOrigin"></datalist><br>
+        <div class="form-group col-md-4">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">
+                        <i class="fa fa-plane"></i> <!-- Assuming you're using Font Awesome for icons -->
+                    </span>
+                </div>
+                <input type="text" class="form-control suggestionField icon-input" list="suggestionsOrigin" id="origin"
+                    placeholder="From">
+            </div>
+            <datalist id="suggestionsOrigin"></datalist>
         </div>
 
 
 
-        <div class="form-group col-md-6">
-            <label for="from">To:</label>
-            <input type="text" class="form-control suggestionField" list="suggestionsOrigin" id="destination"
-                placeholder="Enter origin">
+        <div class="form-group col-md-4">
 
-            <datalist id="suggestionsDest"></datalist><br>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">
+                        <i class="fa fa-plane"></i> <!-- Assuming you're using Font Awesome for icons -->
+                    </span>
+                </div>
+                <input type="text" class="form-control suggestionField icon-input" list="suggestionsDest"
+                    id="destination" placeholder="To">
+            </div>
+            <datalist id="suggestionsDest"></datalist>
         </div>
+
+        <div class="form-group col-md-3">
+
+            <div class="input-group">
+                <input type="date" class="form-control" id="departure_date" placeholder="Select Date" autocomplete="on">
+            </div>
+
+
+            <!-- <input type="date" class="form-control" id="departure_date"> -->
+        </div>
+        <div class="form-group col-md-1">
+
+            <div class="input-group">
+                <input type="hidden" id="sortOrder" name="sortOrder">
+                <button class="btn btn-outline-secondary" type="button" id="filterBtn">
+                    <i class="fa fa-filter"></i>
+                </button>
+            </div>
+            <br>
+        </div>
+    </div>
+    </div>
     </div>
 
     <div class="form-row">
-        <div class="form-group col-md-6">
-            <label for="departure_date">Date of Departure:</label>
-        <input type="date" class="form-control" id="departure_date">
+
+
+
+
+
+
+
+
+        <div id="popover-content" style="display: none;">
+            <div class="list-group">
+                <button type="button" class="list-group-item list-group-item-action sort-option"
+                    data-value="ascending">Distance Ascending</button>
+                <button type="button" class="list-group-item list-group-item-action sort-option"
+                    data-value="descending">Distance Descending</button>
+            </div>
         </div>
 
 
-
-        <div class="form-group col-md-6">
-            <label for="sortOrder">Sort Order:</label>
-            <select class="form-control" id="sortOrder" name="sortOrder">
-                <option value="ascending">Distance Ascending</option>
-                <option value="descending">Distance Descending</option>
-            </select><br>
-        </div>
-      
-        
     </div>
 
 
@@ -52,13 +87,8 @@
 
 
 
- 
-    <div class="col-sm-10">
-        <div class="form-check">
-            <input type="checkbox" id="direct_flight" name="direct_flight" value="true">
-            <label for="direct_flight">Direct Flight Only</label><br>
-        </div>
-      </div>
+
+
 
 
 
@@ -66,10 +96,16 @@
 
 
     <div class="form-group row">
-        <div class="col-sm-10">
-          <button type="submit" class="btn btn-primary">Search</button>
+        <div class="form-group col-md-10">
+            <div class="form-check">
+                <input type="checkbox" id="direct_flight" name="direct_flight" value="true">
+                <label for="direct_flight">Direct Flight Only</label><br>
+            </div>
         </div>
-      </div>
+        <div class="form-group col-md-2">
+            <button type="submit" class="btn btn-primary">Search</button>
+        </div>
+    </div>
 
 
 
@@ -85,6 +121,39 @@
     <div id="optimalRouteOutput"></div>
     <div id="output"></div>
     <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+            document.getElementById("filterBtn").addEventListener("click", function () {
+                // Show the popover
+                var filterBtn = this;
+                var popoverContent = document.getElementById("popover-content").innerHTML;
+                filterBtn.setAttribute("data-toggle", "popover");
+                filterBtn.setAttribute("data-content", popoverContent);
+                filterBtn.setAttribute("data-html", "true");
+                filterBtn.setAttribute("data-placement", "bottom");
+                $(filterBtn).popover('toggle');
+            });
+
+            // Update the hidden input field when an option is clicked
+            document.addEventListener("click", function (event) {
+                if (event.target.classList.contains("sort-option")) {
+                    var sortOrder = event.target.getAttribute("data-value");
+                    document.getElementById("sortOrder").value = sortOrder;
+                }
+            });
+        });
+
+        document.addEventListener('click', function (event) {
+            var popover = document.getElementById('suggestionsOrigin');
+            var originInput = document.getElementById('origin');
+
+            // Check if the click target is inside the popover or the input field
+            if (!popover.contains(event.target) && event.target !== originInput) {
+                // If click is outside popover and input field, close the popover
+                popover.innerHTML = ''; // Clear popover content
+            }
+        });
+
 
         document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("origin").addEventListener("input", function () {
@@ -348,6 +417,25 @@
                 });
         });
     </script>
+
+    <style>
+        form#routeForm {
+            margin-top: 4em;
+        }
+
+        .input-group-text {
+            background-color: #fff !important;
+        }
+
+        input#origin,
+        input#destination {
+            border-left: 0px solid;
+        }
+
+        .form-check {
+            margin-left: 4em;
+        }
+    </style>
 
 
     {% endblock %}
