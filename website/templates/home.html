@@ -76,6 +76,10 @@
                     data-value="ascending">Distance Ascending</button>
                 <button type="button" class="list-group-item list-group-item-action sort-option"
                     data-value="descending">Distance Descending</button>
+                <button type="button" class="list-group-item list-group-item-action sort-option"
+                    data-value="ascendingPrice">Price Ascending</button>
+                <button type="button" class="list-group-item list-group-item-action sort-option"
+                    data-value="descendingPrice">Price Descending</button>
             </div>
         </div>
 
@@ -399,7 +403,7 @@
                                 var route = data[0].indirect_flight_data[i]
                                 console.log("---------------------------------------")
                                 // console.log(route)
-                              
+
                                 console.log("---------------------------------------")
                                 var routeInfo = ""
                                 for (let j = 0; j < route[0].length; j++) {
@@ -417,7 +421,7 @@
                                 var codeBlock = `<div class="card w-50 mb-2">
                                 <div class="card-body">
                                 <h5 class="card-title">Source Airport: ${route[0][0]}</h5>
-                                <h5 class="card-title">Destination Airport: ${route[0][route[0].length-1]}</h5>
+                                <h5 class="card-title">Destination Airport: ${route[0][route[0].length - 1]}</h5>
                                 <p class="card-text">Distance: ${route[1]} km</p>
                                 <p class="card-text">Airline: ${route[2]} </p>
                                 <p class="card-text">Price: $${route[3]} </p>

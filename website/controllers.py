@@ -169,6 +169,12 @@ def sort_by_distance(data, order):
     elif order == 'descending':
         print("DESCENDING")
         return descendingQuickSort(data,1)
+    elif order == 'ascendingPrice':
+        print("ascendingPrice")
+        return ascendingQuickSort(data,3)
+    elif order == 'descendingPrice':
+        print("descendingPrice")
+        return descendingQuickSort(data,3)
     #price is ,3
     else:
         raise ValueError("Invalid order. Please enter 'ascending' or 'descending'.")
