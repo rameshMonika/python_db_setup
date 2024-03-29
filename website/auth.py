@@ -13,8 +13,6 @@ def login():
         print("Login request received")
         email = request.form.get('email')
         password = request.form.get('password')
-        print(email)
-        print(password)
         user = User.query.filter_by(email=email).first()
         if user:
             if check_password_hash(user.password, password):
@@ -23,6 +21,8 @@ def login():
                 return redirect(url_for('views.home'))
             else:
                 print("Incorrect credentials")
+        else:
+            print("User does not exist")
 
 
              
