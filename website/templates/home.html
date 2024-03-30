@@ -439,8 +439,14 @@
                                         readonly>
                                 </form>
                                 <form method="POST" action="/bookFlights">
+                                    <input type="text" name="source_airport" value="${route[0][0]}">
+                                    <input type="hidden" name="destination_airport" value="${route[0][route[0].length - 1]}">
+                                    <input type="hidden" name="distance" value="${route[1]}">
+                                    <input type="hidden" name="airline" value="${route[2]}">
+                                    <input type="hidden" name="route" value="${routeInfo}">
+                                    <input type="hidden" name="departure_date" value="${departureDate}">
                                     <input type="hidden" name="ticket_price" value="${route[3]}">
-                                    <button type="submit" class="btn btn-primary book-now-btn">Book Now</button>
+                                    <button type="submit" class="btn btn-primary book-now-btn">Book Now b</button>
                                     </form>
 
                                         </div>
@@ -496,8 +502,14 @@
                                                 value="${route_Coordinate[y + 1]}" readonly>
                                         </form>
                                         <form method="POST" action="/bookFlights">
+                                    <input type="text" name="source_airport" value="${route[0][0]}">
+                                    <input type="hidden" name="destination_airport" value="${route[0][route[0].length - 1]}">
+                                    <input type="hidden" name="distance" value="${route[1]}">
+                                    <input type="hidden" name="airline" value="${route[2]}">
+                                    <input type="hidden" name="route" value="${routeInfo}">
+                                    <input type="hidden" name="departure_date" value="${departureDate}">
                                     <input type="hidden" name="ticket_price" value="${route[3]}">
-                                    <button type="submit" class="btn btn-primary book-now-btn">Book Now</button>
+                                    <button type="submit" class="btn btn-primary book-now-btn">Book Now b</button>
                                     </form>
                                                 </div>
                                             </div>
