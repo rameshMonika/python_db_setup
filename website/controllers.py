@@ -216,6 +216,76 @@ voucher_data += [
     (6, 350, 15),   # Voucher 200
 ]
 
+def get_all_coordinates(route, airports):
+    flyover_coordinates = []
+    for i in range(1, len(route) - 2):
+        airport_code = route[i]
+        coordinates = airports[airport_code]["coords"]
+        flyover_coordinates.append(coordinates)
+    return flyover_coordinates
+
+
+def getRouteCoordinate(flyover):
+    country_codes = []
+    for i in range(len(flyover)):
+        oneRoute = []
+        for j in range(len(flyover[i])):
+            oneRoute.append(get_country_coordinate_from_country(flyover[i][j]))
+            # print(f"oneRoute[{j}] {oneRoute[j]}")
+        country_codes.append(oneRoute)
+
+    return country_codes
+
+
+
+def get_country_coordinate_from_country(country):
+    coordinate = None
+
+    with open(
+        "website/data/airports_Asia.csv", newline="", encoding="utf-8"
+    ) as csvfile:
+        reader = csv.reader(csvfile)
+        for row in reader:
+            if (
+                row[3].strip().lower() == country.lower()
+            ):  # Check if the country matches
+                latitude = float(row[4])
+                longitude = float(row[5])
+                # Save the coordinates as a tuple
+                coordinate = (latitude, longitude)
+                # print(f"{country} Coordinate:", coordinate)
+                return coordinate
+    return coordinate
+
+
+def getRouteCoordinate(flyover):
+    country_codes = []
+    for i in range(len(flyover)):
+        oneRoute = []
+        for j in range(len(flyover[i])):
+            oneRoute.append(get_country_coordinate_from_country(flyover[i][j]))
+            # print(f"oneRoute[{j}] {oneRoute[j]}")
+        country_codes.append(oneRoute)
+
+    return country_codes
+
+def calculate_estimated_time(distance):
+    
+
+    # Calculate estimated time based on average flight speed (Assuming 800 km/h)
+    # add buffer_time of 1.5 hours
+    buffer_time = 1.5
+    average_speed_kmh = 800
+    estimated_time_hours = distance / average_speed_kmh
+    estimated_time_minutes = (estimated_time_hours % 1) * 60
+    # Add buffer time
+    estimated_time_hours += buffer_time
+
+    return int(estimated_time_hours), int(estimated_time_minutes)
+
+
+
+
 
 
 # Function to calculate weighted score
@@ -505,6 +575,14 @@ def print_optimal_route(optimal_route, response_data, graph, airports):
 # Function to handle each flight information
 def print_route_info(route_data, response_data, graph, printed_routes):
     total_distance = sum(dijkstra(graph, route_data[j], route_data[j+1]) for j in range(len(route_data) - 1))
+    est_time = []
+    # calculate time (in Minus &Hours)
+    estimated_time_hours, estimated_time_minutes = calculate_estimated_time(
+        total_distance
+    )
+    est_time.append(int(estimated_time_hours))
+    est_time.append(int(estimated_time_minutes))
+
     route_tuple = tuple(route_data)
     direct_flights_data = []
     indirect_flights_data = []
@@ -519,14 +597,14 @@ def print_route_info(route_data, response_data, graph, printed_routes):
             for origin, destination in zip(route_data[:-1], route_data[1:]):
                 for segment in sorted_segments:
                     if segment[0] == origin and segment[1] == destination:
-                        direct_flights_data.append(([origin, destination], round(total_distance, 2), segment[2], segment[3]))
+                        direct_flights_data.append(([origin, destination], round(total_distance, 2), segment[2], segment[3],est_time,))
             return direct_flights_data
         elif len(route_data) > 2:
             for i in range(len(route_data) - 1):
                 origin, destination = route_data[i], route_data[i+1]
                 for segment in sorted_segments:
                     if segment[0] == origin and segment[1] == destination:
-                        indirect_flights_data.append((route_data, round(total_distance, 2), segment[2], segment[3]))
+                        indirect_flights_data.append((route_data, round(total_distance, 2), segment[2], segment[3],est_time,))
                         return  indirect_flights_data
 
 

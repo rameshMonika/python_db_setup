@@ -133,7 +133,7 @@
 
         document.addEventListener("DOMContentLoaded", function () {
 
-           
+
 
             document.getElementById("sortOrder").value = "ascending"
 
@@ -253,14 +253,12 @@
             var optimalRouteOutput = document.getElementById('optimalRouteOutput');
             optimalRouteOutput.innerHTML = '';
 
-
             var form = event.target;
             var origin = form.elements.origin.value;
             var destination = form.elements.destination.value;
             var departureDate = form.elements.departure_date.value;
             var directFlight = form.elements.direct_flight.checked;
             var sortOrder = form.elements.sortOrder.value;
-
             var searchData = {
                 origin: origin,
                 destination: destination,
@@ -279,47 +277,93 @@
             })
                 .then(response => response.json())
                 .then(data => {
+                    var flightCoordinate = "";
                     console.log(data);
-                    console.log(data[0])
-                    output.innerHTML = '';
+                    if (data[0].indirect_flight_data && data[0].indirect_flight_data.length > 0) {
+                        //indirect
+                        flightCoordinates = data[2].Allcoordinates[0];
+                    }
+                    else if (data[0].direct_flight_data && data[0].direct_flight_data.length > 0) {
+                        //direct
+                        console.log("********************************")
+                        console.log(data)
+                        console.log(data[2])
+                        console.log("********************************")
+
+                        flightCoordinates = data[2].flight_coordinates[0];
+                    }
+
+                    // console.log('Flight Coordinates', `);
+
+                    var output = document.getElementById('output');
                     var optimalRouteOutput = document.getElementById('optimalRouteOutput');
-
-                    output.innerHTML = ''; // 
-                    optimalRouteOutput.innerHTML = ''; // Clear the output div
-
+                    output.innerHTML = ''; // Clear the output div
+                    optimalRouteOutput.innerHTML = ''; // Clear the optimalRouteOutput div
 
                     if (data[1].hasOwnProperty('optimal_route_data')) {
-                        console.log("True")
-                        console.log(data[1])
+                        console.log("Optimal Route Section");
+                        var route = data[1].optimal_route_data;
+                        var routeInfo = "";
 
-
-                        var route = data[1].optimal_route_data
-
-
-                        var routeInfo = ""
                         for (let j = 0; j < route[0][0].length; j++) {
-
-                            console.log(route[0][0][j])
-
                             routeInfo += route[0][0][j];
                             if (j < route[0][0][j].length - 2) {
-                                routeInfo += ' -> '
-
+                                routeInfo += ' > ';
                             }
-
                         }
 
+                        est_duration = "";
+                        indirect_flight = data[0].indirect_flight_data;
+                        direct_flight = data[0].direct_flight_data;
 
-                        var codeBlock = `<div class="card w-50 mb-2">
-                                    <div class="card-body">
-                                        <span class="badge badge-info">Best Optimal</span>
+                        if (typeof direct_flight === 'undefined' || direct_flight === null) {
+                            //For Optimal Flight =>  Indirect Flight
+                            est_duration = indirect_flight[0][4];
+                            routeCoordinate = data[2].Allcoordinates[0];
+                            route_Coordinate = data[2].Allcoordinates;
+                            distance_direct = route[0][2];
+                        } else {
+                            // For Optimal Flight =>  Direct Flight
+                            est_duration = direct_flight[0][4];
+                            routeCoordinate = data[2].flight_coordinates[0];
+                            route_Coordinate = data[2].flight_coordinates;
+                            distance_direct = data[1].optimal_route_data[0][2];
+                        }
+
+                        console.log("Optimal total Distance: ", distance_direct);
+                        console.log("________________________________")
+                        console.log(est_duration)
+                        console.log("________________________________")
+
+                        est_duration_com = est_duration[0] + " Hours " + est_duration[1] + " Mins";
+
+                        var codeBlock = `
+                        
+                            <div class="card w-50 mb-2">
+                                <div class="card-body">
+                                    <span class="badge badge-info">Best Optimal</span>
                                     <h5 class="card-title">Source Airport: ${route[0][0][0]}</h5>
                                     <h5 class="card-title">Destination Airport: ${route[0][0][1]}</h5>
-                                    <p class="card-text">Distance: ${route[0][2]} km</p>
                                     <p class="card-text">Airline: ${route[0][1]} </p>
-                                    <p class="card-text" id="price-flight">Price: $${route[0][3]} </p>
+                                    <p class="card-text">Distance: ${distance_direct} km</p>
+                                    <p class="card-text">Price: $${route[0][3]} </p>
                                     <p class="card-text">Route: ${routeInfo}</p>
-                                  <form method="POST" action="/bookFlights">
+                                    <form action="/OneMap" method="post">
+                                    <button type="submit" class="btn btn-primary">View More</button>
+                                    <input type="text" style="visibility: hidden;" id="Dest" name="Dest" value="${flightCoordinates[1]}" readonly>
+                            <input type="text" style="visibility: hidden;" id="Source" name="Source" value="${flightCoordinates[0]}"
+                                readonly>
+                            <input type="text" style="visibility: hidden;" id="FlightRoutes" name="FlightRoutes" value="${routeInfo}"
+                                readonly>
+                            <input type="text" style="visibility: hidden;" id="flightPrice" name="flightPrice" value="${route[0][3]}"
+                                readonly>
+                            <input type="text" style="visibility: hidden;" id="ETA" name="ETA" value="${est_duration_com}" readonly>
+                            <input type="text" style="visibility: hidden;" id="totalDistance" name="totalDistance"
+                                value="${distance_direct}" readonly>
+                            <input type="text" style="visibility: hidden;" id="allCoordinate" name="allCoordinate"
+                                value="${routeCoordinate}" readonly>
+                        </form>
+                                    <form method="POST" action="/bookFlights">
                                     <input type="hidden" name="source_airport" value="${route[0][0][0]}">
                                     <input type="hidden" name="destination_airport" value="${route[0][0][1]}">
                                     <input type="hidden" name="distance" value="${route[0][2]}">
@@ -327,168 +371,142 @@
                                     <input type="hidden" name="route" value="${routeInfo}">
                                     <input type="hidden" name="departure_date" value="${departureDate}">
                                     <input type="hidden" name="ticket_price" value="${route[0][3]}">
-                                    <button type="submit" class="btn btn-primary book-now-btn">Book Now</button>
+                                    <button type="submit" class="btn btn-primary book-now-btn">Book Now b</button>
                                     </form>
 
-                                    <a href="#" class="btn btn-primary ">View More</a>
+                                </div>
+                            </div>
+                            
+                        
+                                    
+                                   
                                    
                                     </div>
-                                    </div>
                                     
-                                    `;
+                                    
+                        `;
 
-
-                        optimalRouteOutput.innerHTML += codeBlock
-
-
-
-
-
-
-
-
-
-
-
-
+                        optimalRouteOutput.innerHTML += codeBlock;
                     }
 
+                    var encounteredClasses = {}; // Object to keep track of encountered classes
 
-
-
-
-                    if (data[0].hasOwnProperty('direct_flight_data')) {
-                        console.log("Ttue")
-                        if (data[0].direct_flight_data.length > 0) {
-
-                            for (i = 0; i < data[0].direct_flight_data.length; i++) {
-                                var route = data[0].direct_flight_data[i]
-
-                                var routeInfo = ""
+                    for (var i = 1; i < route_Coordinate.length; i += 2) {
+                        if (data[0].hasOwnProperty('direct_flight_data')) {
+                            console.log("Direct Flight Section");
+                            counter = 1;
+                            while (data[0].direct_flight_data.length > 0 && counter < (data[0].direct_flight_data.length)) {
+                                // console.log("direct flight data Counter: ", counter);
+                                // console.log("data[0].direct_flight_data.length", data[0].direct_flight_data.length);
+                                var htmlContent = "";
+                                var directEstTime = data[0].direct_flight_data[counter][4][0] + " Hours " + data[0].direct_flight_data[counter][4][1] + " Mins";
+                                var route = data[0].direct_flight_data[counter];
+                                var routeInfo = "";
                                 for (let j = 0; j < route[0].length; j++) {
-
-                                    console.log(route[0][j])
-
                                     routeInfo += route[0][j];
-                                    if (j < route[0][j].length - 2) {
-                                        routeInfo += ' -> '
-
+                                    if (j < route[0].length - 1) {
+                                        routeInfo += ' > ';
                                     }
-
                                 }
+                                // console.log('One data', route)
 
-
-                                var codeBlock = `<div class="card w-50 mb-2">
-                                    <div class="card-body">
-                                    <h5 class="card-title">Source Airport: ${route[0][0][0]}</h5>
-                                    <h5 class="card-title">Destination Airport: ${route[0][1]}</h5>
-                                    <p class="card-text">Distance: ${route[1]} km</p>
-                                    <p class="card-text">Airline: ${route[2]} </p>
-                                    <p class="card-text">Price: $${route[3]} </p>
-                                    <p class="card-text">Route: ${routeInfo}</p>
-                                    <form method="POST" action="/bookFlights">
-                                    <input type="hidden" name="ticket_price" value="${route[3]}">
-                                    <button type="submit" class="btn btn-primary book-now-btn">Book Now</button>
-                                    </form>
-
-                                    <a href="#" class="btn btn-primary">View More</a>
-                                    </div>
-                                    </div>`;
-
-
-                                output.innerHTML += codeBlock
-
-
-
-
-
-                            }
-
-
-
-
-                        }
-
-
-                    }
-
-                    else if (data.hasOwnProperty('error')) {
-                        output.innerHTML += `<p>${data.error}</p>`
-
-                    }
-                    else {
-                        console.log("False")
-                        if (data[0].indirect_flight_data.length > 0) {
-
-                            for (i = 0; i < data[0].indirect_flight_data.length; i++) {
-                                var route = data[0].indirect_flight_data[i]
-                                console.log("---------------------------------------")
-                                // console.log(route)
-
-                                console.log("---------------------------------------")
-                                var routeInfo = ""
-                                for (let j = 0; j < route[0].length; j++) {
-
-                                    console.log(route[0][j])
-
-                                    routeInfo += route[0][j];
-                                    if (j < route[0][j].length - 1) {
-                                        routeInfo += ' -> '
-
-                                    }
-
-                                }
-
-                                var codeBlock = `<div class="card w-50 mb-2">
-                                <div class="card-body">
-                                <h5 class="card-title">Source Airport: ${route[0][0]}</h5>
-                                <h5 class="card-title">Destination Airport: ${route[0][route[0].length - 1]}</h5>
-                                <p class="card-text">Distance: ${route[1]} km</p>
-                                <p class="card-text">Airline: ${route[2]} </p>
-                                <p class="card-text">Price: $${route[3]} </p>
-                                <p class="card-text">Route: ${routeInfo}</p>
+                                htmlContent += `
                                 
-                                    <form method="POST" action="/bookFlights">
+                                    <div class="card w-50 mb-2">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Source Airport: ${route[0][0]}</h5>
+                                            <h5 class="card-title">Destination Airport: ${route[0][route[0].length - 1]}</h5>
+                                            <p class="card-text">Distance: ${route[1]} km</p>
+                                            <p class="card-text">Airline: ${route[2]} </p>
+                                            <p class="card-text">Price: $${route[3]} </p>
+                                            <p class="card-text">Route: ${routeInfo}</p>
+                                            <form action="/OneMap" method="post">
+                                            <button type="submit" class="btn btn-primary">View More</button>
+                                            
+                                    <input type="text" style="visibility: hidden;" id="Source" name="Source"
+                                        value="${data[2].flight_coordinates[0]}" readonly>
+                                    <input type="text" style="visibility: hidden;" id="Dest" name="Dest" value="${data[2].flight_coordinates[1]}"
+                                        readonly>
+                                    <input type="text" style="visibility: hidden;" id="flightPrice" name="flightPrice" value="${route[3]}" readonly>
+                                    <input type="text" style="visibility: hidden;" id="ETA" name="ETA" value="${directEstTime}" readonly>
+                                    <input type="text" style="visibility: hidden;" name="FlightRoutes" value="${routeInfo}" readonly>
+                                    <input type="text" style="visibility: hidden;" name="totalDistance" value="${route[1]}" readonly>
+                                    <input type="text" style="visibility: hidden;" name="allCoordinate" value="${data[2].flight_coordinates}"
+                                        readonly>
+                                </form>
+                                <form method="POST" action="/bookFlights">
                                     <input type="hidden" name="ticket_price" value="${route[3]}">
                                     <button type="submit" class="btn btn-primary book-now-btn">Book Now</button>
                                     </form>
 
-                                <a href="#" class="btn btn-primary">View More</a>
-                                </div>
-                                </div>`;
+                                        </div>
+                                    </div>
 
-
-                                output.innerHTML += codeBlock
-
-
-
-
-
+                                        `;
+                                counter += 1;
+                                output.innerHTML += htmlContent; // Append the HTML content
                             }
 
+                        } else if (data.hasOwnProperty('error')) {
+                            output.innerHTML += `<p>${data.error}</p>`;
+                        } else {
+                            if (data[0].indirect_flight_data.length > 0) {
+                                console.log("Indirect Flight Section");
 
-
-
+                                var htmlContent = "";
+                                for (var y = 0; y < data[0].indirect_flight_data.length; y++) {
+                                    var indirectEstTime = data[0].indirect_flight_data[y][4][0] + " Hours " + data[0].indirect_flight_data[y][4][1] + " Mins";
+                                    var route = data[0].indirect_flight_data[y];
+                                    var routeInfo = "";
+                                    for (let j = 0; j < route[0].length; j++) {
+                                        routeInfo += route[0][j];
+                                        if (j < route[0].length - 1) {
+                                            routeInfo += ' > ';
+                                        }
+                                    }
+                                    if (!encounteredClasses[route[1]]) {
+                                        // If not encountered, add it to the encountered classes set
+                                        encounteredClasses[route[1]] = true;
+                                        htmlContent += `
+                                        
+                                            <div class="card w-50 mb-2 ${route[1]}">
+                                                <div class="card-body">
+                                                    <h5 class="card-title">Source Airport: ${route[0][0]}</h5>
+                                                    <h5 class="card-title">Destination Airport: ${route[0][route[0].length - 1]}</h5>
+                                                    <p class="card-text">Distance: ${route[1]} km</p>
+                                                    <p class="card-text">Airline: ${route[2]} </p>
+                                                    <p class="card-text">Price: $${route[3]} </p>
+                                                    <p class="card-text">Route: ${routeInfo}</p>
+                                                    <form action="/OneMap" method="post">
+                                                    <button type="submit" class="btn btn-primary">View More</button>
+                                                    <input type="text" style="visibility: hidden;" id="Dest" name="Dest" value="${flightCoordinates[1]}" readonly>
+                                            <input type="text" style="visibility: hidden;" id="flightPrice" name="flightPrice" value="${route[3]}" readonly>
+                                            <input type="text" style="visibility: hidden;" id="Source" name="Source" value="${flightCoordinates[0]}"
+                                                readonly>
+                                            <input type="text" style="visibility: hidden;" id="FlightRoutes" name="FlightRoutes" value="${routeInfo}"
+                                                readonly>
+                                            <input type="text" style="visibility: hidden;" name="ETA" id="ETA" value="${indirectEstTime}" readonly>
+                                            <input type="text" style="visibility: hidden;" id="totalDistance" name="totalDistance" value="${route[1]}"
+                                                readonly>
+                                            <input type="text" style="visibility: hidden;" id="allCoordinate" name="allCoordinate"
+                                                value="${route_Coordinate[y + 1]}" readonly>
+                                        </form>
+                                        <form method="POST" action="/bookFlights">
+                                    <input type="hidden" name="ticket_price" value="${route[3]}">
+                                    <button type="submit" class="btn btn-primary book-now-btn">Book Now</button>
+                                    </form>
+                                                </div>
+                                            </div>
+                                           `;
+                                    }
+                                }
+                                output.innerHTML += htmlContent; // Append the HTML content
+                            }
                         }
-
-
-
-
                     }
-
-
-
-
-
-
-
-                }
-                )
+                })
                 .catch(error => {
                     console.error('Error:', error);
-                    output.innerHTML = '';
-                    output.innerHTML = '<p class="errorMsg">Invalid input!</p>';
-                    // Handle error
                 });
         });
 
