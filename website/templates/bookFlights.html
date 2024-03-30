@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input Form</title>
+</head>
+<body>
+    <h1>Enter Details</h1>
+    <form method="POST">
+        <label for="passengers">Number of Passengers:</label>
+        <input type="number" id="passengers" name="passengers" required><br><br>
+        <label for="ticket_price">Ticket Price:</label>
+        <input type="number" id="ticket_price" name="ticket_price" step="0.01" required><br><br>
+        <button type="submit">Submit</button>
+    </form>
+
+    <h1>Top Usable Vouchers</h1>
+    <table>
+        <tr>
+            <th>Passengers</th>
+            <th>Ticket Price</th>
+            <th>Discount</th>
+            <th>Weighted Score</th>
+            <th>Savings</th>
+        </tr>
+        {% for voucher in vouchers %}
+        <tr>
+            <td>{{ voucher[0] }}</td>
+            <td>{{ voucher[1] }}</td>
+            <td>{{ voucher[2] }}</td>
+            <td>{{ voucher[3] }}</td>
+            <td>{{ voucher[4] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

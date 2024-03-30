@@ -130,7 +130,41 @@
 
     <script>
 
+
         document.addEventListener("DOMContentLoaded", function () {
+
+           
+
+            //     if (event.target.classList.contains("book-now-btn")) {
+            //         event.preventDefault(); // Prevent the default action of the link
+            //         console.log("book now button clicked")
+
+            //         // Find the closest card body element
+            //         var cardBody = event.target.closest('.card-body');
+
+            //         // Get the price from the card text
+            //         var priceElement = cardBody.querySelector('.card-text#price-flight');
+            //         var price = priceElement.textContent.trim().split(' ')[1]; // Extract the price
+
+            //         // Send the price to the bookFlights route
+            //         fetch('/bookFlights', {
+            //             method: 'POST',
+            //             headers: {
+            //                 'Content-Type': 'application/json'
+            //             },
+            //             body: JSON.stringify({ price: price })
+            //         })
+            //             .then(response => response.json())  // Parse the JSON response from the server
+            //             .then(data => {
+            //                 // Handle the response data as needed
+            //                 console.log(data);  // For example, log the response data to the console
+            //             })
+            //             .catch(error => {
+            //                 console.error('Error:', error);
+            //             });
+            //     }
+            // });
+
             document.getElementById("sortOrder").value = "ascending"
 
             document.getElementById("filterBtn").addEventListener("click", function () {
@@ -313,12 +347,16 @@
                                     <h5 class="card-title">Destination Airport: ${route[0][0][1]}</h5>
                                     <p class="card-text">Distance: ${route[0][2]} km</p>
                                     <p class="card-text">Airline: ${route[0][1]} </p>
-                                    <p class="card-text">Price: $${route[0][3]} </p>
+                                    <p class="card-text" id="price-flight">Price: $${route[0][3]} </p>
                                     <p class="card-text">Route: ${routeInfo}</p>
+                                  
 
-                                    <a href="#" class="btn btn-primary">View More</a>
+                                    <a href="#" class="btn btn-primary ">View More</a>
+                                   
                                     </div>
-                                    </div>`;
+                                    </div>
+                                    
+                                    `;
 
 
                         optimalRouteOutput.innerHTML += codeBlock
@@ -465,6 +503,8 @@
                     // Handle error
                 });
         });
+
+
     </script>
 
     <style>

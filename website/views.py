@@ -1,6 +1,6 @@
-from flask import Blueprint,render_template,request, jsonify
+from flask import Blueprint,render_template,request, jsonify,flash,redirect,url_for
 from flask_login import login_required,current_user
-from .controllers import read_airports_from_csv,amadeus,construct_graph,print_flight_routes,dfs,find_optimal_route,print_optimal_route
+from .controllers import read_airports_from_csv,amadeus,construct_graph,print_flight_routes,dfs,find_optimal_route,print_optimal_route,display_top_usable_vouchers
 import os
 from .trie import Trie
 import csv
@@ -27,6 +27,26 @@ with open(csv_file_path, 'r',encoding='utf-8') as f:
 @login_required
 def home():
     return render_template("home.html",user=current_user)
+
+@views.route('/bookFlights', methods=['GET', 'POST'])
+def input_form():
+    if request.method == 'POST':
+        passengers = int(request.form['passengers'])
+        
+        ticket_price = float(request.form['ticket_price'])
+        # Redirect to the route displaying top usable vouchers
+        top_usable_vouchers = display_top_usable_vouchers(passengers, ticket_price)
+        return render_template('bookFlights.html', passengers=passengers, ticket_price=ticket_price, vouchers=top_usable_vouchers)
+    return render_template('bookFlights.html')
+
+
+@views.route('/display_vouchers')
+def display_vouchers():
+    passengers = int(request.args.get('passengers'))
+    ticket_price = float(request.args.get('ticket_price'))
+    top_usable_vouchers = display_top_usable_vouchers(passengers, ticket_price)
+    return render_template('vouchers.html', vouchers=top_usable_vouchers)
+
 
 
 @views.route('/suggest', methods=['GET'])
