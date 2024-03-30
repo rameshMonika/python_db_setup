@@ -45,22 +45,34 @@ def input_form_Result():
          passengers = int(request.form['passengers'])
         
          ticket_price = float(request.form['ticket_price'])
+         print("Source:", source)
+         print("Destination:", destination)
+         print("Departure Date:", departure_date)
+         
          
          # Redirect to the route displaying top usable vouchers
          top_usable_vouchers = display_top_usable_vouchers(passengers, ticket_price)
          return render_template('vouchers.html', passengers=passengers, ticket_price=ticket_price, vouchers=top_usable_vouchers,source=source,destination=destination,departure_date=departure_date,airline=airline,route=route)
    
 
-@views.route('/display_vouchers', methods=['POST'])
+@views.route('/display_vouchers', methods=['POST','GET'])
 def display_vouchers():
     if request.method == 'POST':
         passengers = int(request.form['passengers'])
         ticket_price = float(request.form['ticket_price'])
-        source = request.form.get('source_airport')
-        destination = request.form.get('destination_airport')
+        source = request.form.get('source')
+        destination = request.form.get('destination')
         departure_date = request.form.get('departure_date')
         airline = request.form.get('airline')
         route=request.form.get('route')
+
+
+        print("Data received from jkkk.html:", ticket_price)
+        print("Data received from jkkk.html:", source)
+        print("Data received from jkkk.html:", destination)
+        print("Data received from jkkk.html:", departure_date)
+        print("Data received from jkkk.html:", airline)
+        print("Data received from jkkk.html:", route)
         
        
         top_usable_vouchers = display_top_usable_vouchers(passengers, ticket_price)
