@@ -6,6 +6,34 @@
     <title>Top Usable Vouchers</title>
 </head>
 <body>
+    <script>
+           document.addEventListener("DOMContentLoaded", function () {
+            // Get the ticket price from the server-side template variable
+            var ticket_price = parseInt("{{ticket_price}}");
+            var source_airport = "{{source}}";
+            var destination_airport = "{{destination}}";
+            var departure_date = "{{departure_date}}";
+            var airline = "{{airline}}";
+            var route = "{{route}}";
+
+            console.log("Ticket price: " + ticket_price);
+            console.log("Source: " + source_airport);
+            console.log("Destination: " + destination_airport);
+            console.log("Departure Date: " + departure_date);
+            console.log("Airline: " + airline);
+            console.log("Route: " + route);
+
+            // Set the value of the ticket_price_value input box
+            // var ticketPriceInput = document.getElementById("ticket_price_value");
+            // if (ticketPriceInput) {
+
+            //     ticketPriceInput.value = ticket_price;
+            // } else {
+            //     console.error("Element with id 'ticket_price_value' not found.");
+            // }
+        });
+
+    </script>
     <h1> Details of Flight</h1>
     <p>From: {{ source }}</p>
     <p>To: {{ destination }}</p>

@@ -36,21 +36,35 @@ def home():
 @views.route('/vouchers', methods=['GET', 'POST'])
 def input_form_Result():
      if request.method == 'POST':
+         source = request.form.get('source_airport')
+         destination = request.form.get('destination_airport')
+         departure_date = request.form.get('departure_date')
+         airline = request.form.get('airline')
+         route=request.form.get('route')
+         ticket_price = request.form.get('ticket_price')
          passengers = int(request.form['passengers'])
         
          ticket_price = float(request.form['ticket_price'])
+         
          # Redirect to the route displaying top usable vouchers
          top_usable_vouchers = display_top_usable_vouchers(passengers, ticket_price)
-         return render_template('vouchers.html', passengers=passengers, ticket_price=ticket_price, vouchers=top_usable_vouchers)
-     return render_template('vouchers.html')
+         return render_template('vouchers.html', passengers=passengers, ticket_price=ticket_price, vouchers=top_usable_vouchers,source=source,destination=destination,departure_date=departure_date,airline=airline,route=route)
+   
 
 @views.route('/display_vouchers', methods=['POST'])
 def display_vouchers():
     if request.method == 'POST':
         passengers = int(request.form['passengers'])
         ticket_price = float(request.form['ticket_price'])
+        source = request.form.get('source_airport')
+        destination = request.form.get('destination_airport')
+        departure_date = request.form.get('departure_date')
+        airline = request.form.get('airline')
+        route=request.form.get('route')
+        
+       
         top_usable_vouchers = display_top_usable_vouchers(passengers, ticket_price)
-        return render_template('vouchers.html', passengers=passengers, ticket_price=ticket_price, vouchers=top_usable_vouchers)
+        return render_template('vouchers.html', passengers=passengers, ticket_price=ticket_price, vouchers=top_usable_vouchers, source=source, destination=destination, departure_date=departure_date, airline=airline, route=route)
 
     return jsonify({'error': 'Invalid request.'})
 

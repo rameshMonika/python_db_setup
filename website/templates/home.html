@@ -322,12 +322,16 @@
                             routeCoordinate = data[2].Allcoordinates[0];
                             route_Coordinate = data[2].Allcoordinates;
                             distance_direct = route[0][2];
+                            destSource_Coordinate = data[2].Allcoordinates[0]; //add-on (30-March)
+                            // Optimal_Route=
+
                         } else {
                             // For Optimal Flight =>  Direct Flight
                             est_duration = direct_flight[0][4];
-                            routeCoordinate = data[2].flight_coordinates[0];
+                            routeCoordinate = data[2].flight_coordinates; //add-on (30-March)
                             route_Coordinate = data[2].flight_coordinates;
                             distance_direct = data[1].optimal_route_data[0][2];
+                            destSource_Coordinate = data[2].flight_coordinates //add-on (30-March)
                         }
 
                         console.log("Optimal total Distance: ", distance_direct);
@@ -350,8 +354,8 @@
                                     <p class="card-text">Route: ${routeInfo}</p>
                                     <form action="/OneMap" method="post">
                                     <button type="submit" class="btn btn-primary">View More</button>
-                                    <input type="text" style="visibility: hidden;" id="Dest" name="Dest" value="${flightCoordinates[1]}" readonly>
-                            <input type="text" style="visibility: hidden;" id="Source" name="Source" value="${flightCoordinates[0]}"
+                                    <input type="text" style="visibility: hidden;" id="Dest" name="Dest" value="${routeCoordinate[1]}" readonly>
+                            <input type="text" style="visibility: hidden;" id="Source" name="Source" value="${routeCoordinate[0]}"
                                 readonly>
                             <input type="text" style="visibility: hidden;" id="FlightRoutes" name="FlightRoutes" value="${routeInfo}"
                                 readonly>
@@ -424,8 +428,8 @@
                                             <button type="submit" class="btn btn-primary">View More</button>
                                             
                                     <input type="text" style="visibility: hidden;" id="Source" name="Source"
-                                        value="${data[2].flight_coordinates[0]}" readonly>
-                                    <input type="text" style="visibility: hidden;" id="Dest" name="Dest" value="${data[2].flight_coordinates[1]}"
+                                        value="${destSource_Coordinate[0]}" readonly>
+                                    <input type="text" style="visibility: hidden;" id="Dest" name="Dest" value="${destSource_Coordinate[1]}"
                                         readonly>
                                     <input type="text" style="visibility: hidden;" id="flightPrice" name="flightPrice" value="${route[3]}" readonly>
                                     <input type="text" style="visibility: hidden;" id="ETA" name="ETA" value="${directEstTime}" readonly>
