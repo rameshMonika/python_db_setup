@@ -93,6 +93,8 @@
 
     </script>
     <div class="container-fluid">
+        <h2>Booking Confirmation</h2>
+        <div id="confrimationOp"></div>
 
         <div class="container">
 
@@ -101,7 +103,7 @@
             <div class="row mt-3">
                 <div class="col-lg-8">
                     <!-- Details -->
-                    <div class="card mb-4">
+                    <div class="card mb-4 p-4">
                         <div class="card-body">
 
                             <table class="table table-borderless">
@@ -135,80 +137,76 @@
                                                 </div>
 
                                             </div>
+                                        </td>
+                                        <td id="noOfPassenger">{{ passengers }}</td>
+                                        <td class="text-end" id="ticketPrice">{{ticket_price}}</td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="2">Subtotal</td>
+                                        <td class="text-end" id="subTotal">${{ticket_price * passengers}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2">Discount</td>
+                                        <td class="text-danger text-end" id="discountPrice">0.00</td>
+                                    </tr>
+                                    <tr class="fw-bold">
+                                        <td colspan="2">TOTAL</td>
+                                        <td class="text-end" id="totalAmount">${{ticket_price * passengers}}</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
                         </div>
-                        </td>
-                        <td id="noOfPassenger">{{ passengers }}</td>
-                        <td class="text-end" id="ticketPrice">{{ticket_price}}</td>
-                        </tr>
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <td colspan="2">Subtotal</td>
-                                <td class="text-end" id="subTotal">${{ticket_price * passengers}}</td>
-                            </tr>
-                            <tr>
-                                <td colspan="2">Discount</td>
-                                <td class="text-danger text-end" id="discountPrice">0.00</td>
-                            </tr>
-                            <tr class="fw-bold">
-                                <td colspan="2">TOTAL</td>
-                                <td class="text-end" id="totalAmount">${{ticket_price * passengers}}</td>
-                            </tr>
-                        </tfoot>
-                        </table>
                     </div>
+
                 </div>
-
-            </div>
-            <div id="confrimationOp">
-
+             
             </div>
         </div>
     </div>
-    <button type="button" class="btn btn-primary" id="confirmBookingButton">Confirm Booking</button>
-    <button type="button" class="btn btn-primary" onclick="window.location.href = '/'">Back Home</button>
+    <div class="d-flex  mt-3 mb-3 mr-8">
+        <button type="button" class="btn btn-primary me-3" id="confirmBookingButton">Confirm Booking</button>
+        <button type="button" class="btn btn-secondary" onclick="window.location.href = '/'">Back Home</button>
+    </div>
 
-
-
-
-    <h1>Top Usable Vouchers</h1>
+    <!-- Display message if no vouchers available -->
+    {% if not vouchers %}
     <div class="container mt-5">
+        <div class="alert alert-info" role="alert">
+            No vouchers available at the moment.
+        </div>
+    </div>
+    {% endif %}
+
+   
+    {% if vouchers %}
+    <h1 class="mt-5 mb-3">Top Usable Vouchers</h1>
+    {% endif %}
+    <div class="container">
         {% for voucher in vouchers %}
-        <div class="container mt-5">
-            <div class="d-flex justify-content-center row">
-                <div class="col-md-6">
-                    <div class="coupon p-3 bg-white">
-                        <div class="row no-gutters">
-                            <div class="col-md-4 border-right">
-                                <div class="d-flex flex-column align-items-center">
-                                    <span class="d-block">Minimum Number of Passengers:</span><span
-                                        class="text-black-50">{{ voucher[0] }}</span>
-                                    <span class="d-block">Minimum cost of a ticket:</span><span class="text-black-50">{{
-                                        voucher[1] }}</span>
-                                </div>
-                            </div>
-                            <div class="col-md-8">
-                                <div>
-                                    <div class="d-flex flex-row justify-content-end off  ">
-                                        <h1 class="voucherDiscountPrice">{{ voucher[2] }}</h1><span>OFF</span>
-                                    </div>
-                                    <div class="d-flex flex-row justify-content-between off px-3 p-2"><span
-                                            class="border border-success px-3 rounded code btn_apply_voucher">Apply
-                                            Voucher</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+        <div class="coupon p-3 bg-light mb-3">
+            <div class="row no-gutters">
+                <div class="col-md-4 border-right">
+                    <div class="d-flex flex-column align-items-center">
+                        <span class="d-block">Minimum Number of Passengers:</span>
+                        <span class="text-black-50">{{ voucher[0] }}</span>
+                        <span class="d-block mt-2">Minimum cost of a ticket:</span>
+                        <span class="text-black-50">{{ voucher[1] }}</span>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="d-flex flex-row justify-content-end off">
+                        <h2 class="voucherDiscountPrice text-danger">{{ voucher[2] }}</h2>
+                        <span class="fs-4 text-danger">OFF</span>
+                    </div>
+                    <div class="d-flex flex-row justify-content-between off px-3 p-2">
+                        <span class="border border-primary px-3 rounded code btn_apply_voucher">Apply Voucher</span>
                     </div>
                 </div>
             </div>
         </div>
-
-
         {% endfor %}
-
-
-    </div>
     </div>
 
 
@@ -226,36 +224,17 @@
 </body>
 <style>
     body {
-        background: #eee;
+        background: #f8f9fa;
+    }
+
+    .d-flex.mt-3.mb-3 {
+        margin-left: 30em;
     }
 
     .card {
-        box-shadow: 0 20px 27px 0 rgb(0 0 0 / 5%);
+        border-radius: 12px;
+        box-shadow: 0 20px 27px 0 rgba(0, 0, 0, 0.05);
     }
-
-    .card {
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        min-width: 0;
-        word-wrap: break-word;
-        background-color: #fff;
-        background-clip: border-box;
-        border: 0 solid rgba(0, 0, 0, .125);
-        border-radius: 1rem;
-    }
-
-    .text-reset {
-        --bs-text-opacity: 1;
-        color: inherit !important;
-    }
-
-    a {
-        color: #5465ff;
-        text-decoration: none;
-    }
-
-
 
     .coupon {
         border-radius: 12px;
@@ -263,14 +242,19 @@
         background-color: beige !important;
     }
 
-    body {
-        background: rgb(251, 253, 255)
+    .code:hover {
+        background: #007bff;
+        color: #fff;
+        cursor: pointer;
     }
 
-    .code:hover {
-        background: green;
-        color: #fff;
-        cursor: pointer
+    button#confirmBookingButton {
+        margin-right: 2em;
+    }
+
+    h2 {
+        margin-left: 2.5em;
+        margin-top: 1em;
     }
 </style>
 
