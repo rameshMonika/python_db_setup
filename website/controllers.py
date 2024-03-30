@@ -8,8 +8,8 @@ from amadeus import Client
 
 # Initialize Amadeus client
 amadeus = Client(
-    client_id='BxsFW8YgIcfqCGSiwk1GPvcJnttW266T',
-    client_secret='WnFBmc33acG9bWHf'
+    client_id='RyTaBkUYFxBCMt1c5SIJX8jqhNqvCq81',
+    client_secret='Xpi2SV5TFRBMTshT'
 )
 
 # Define helper functions
