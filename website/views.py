@@ -28,24 +28,83 @@ with open(csv_file_path, 'r',encoding='utf-8') as f:
 def home():
     return render_template("home.html",user=current_user)
 
+
+# @views.route('/bookFlights', methods=['GET', 'POST'])
+# def input_form():
+#     if request.method == 'POST':
+#         ticket_price = request.form.get('ticket_price')
+        
+     
+#         print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+    
+#         print(ticket_price)
+#         print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+
+#     return render_template('bookFlights.html',ticket_price=ticket_price)
+
+@views.route('/vouchers', methods=['GET', 'POST'])
+def input_form_Result():
+     if request.method == 'POST':
+         passengers = int(request.form['passengers'])
+        
+         ticket_price = float(request.form['ticket_price'])
+         # Redirect to the route displaying top usable vouchers
+         top_usable_vouchers = display_top_usable_vouchers(passengers, ticket_price)
+         return render_template('vouchers.html', passengers=passengers, ticket_price=ticket_price, vouchers=top_usable_vouchers)
+     return render_template('vouchers.html')
+
+@views.route('/display_vouchers', methods=['POST'])
+def display_vouchers():
+    if request.method == 'POST':
+        passengers = int(request.form['passengers'])
+        ticket_price = float(request.form['ticket_price'])
+        top_usable_vouchers = display_top_usable_vouchers(passengers, ticket_price)
+        return render_template('vouchers.html', passengers=passengers, ticket_price=ticket_price, vouchers=top_usable_vouchers)
+
+    return jsonify({'error': 'Invalid request.'})
+
+
 @views.route('/bookFlights', methods=['GET', 'POST'])
 def input_form():
     if request.method == 'POST':
-        passengers = int(request.form['passengers'])
-        
-        ticket_price = float(request.form['ticket_price'])
-        # Redirect to the route displaying top usable vouchers
-        top_usable_vouchers = display_top_usable_vouchers(passengers, ticket_price)
-        return render_template('bookFlights.html', passengers=passengers, ticket_price=ticket_price, vouchers=top_usable_vouchers)
+        # Check if 'ticket_price' exists in the form data
+        source = request.form.get('source_airport')
+        destination = request.form.get('destination_airport')
+        departure_date = request.form.get('departure_date')
+        airline = request.form.get('airline')
+        route=request.form.get('route')
+        ticket_price = request.form.get('ticket_price')
+       
+        if ticket_price:
+            # Route to handle data submission from home.html
+            print("Data received from home.html:", ticket_price)
+            print("Data received from home.html:", source)
+            print("Data received from home.html:", destination)
+            print("Data received from home.html:", departure_date)
+            print("Data received from home.html:", airline)
+            print("Data received from home.html:", route)
+            return render_template('bookFlights.html',  ticket_price=ticket_price,source=source,destination=destination,departure_date=departure_date,airline=airline,route=route)
+          
+          
+        # else:
+        #     # Route to handle data submission from bookFlights.html
+        #     passengers = int(request.form['passengers'])
+        #     ticket_price = float(request.form['ticket_price'])
+        #     top_usable_vouchers = display_top_usable_vouchers(passengers, ticket_price)
+        #     return render_template('bookFlights.html', passengers=passengers, ticket_price=ticket_price, vouchers=top_usable_vouchers)
+
     return render_template('bookFlights.html')
 
 
-@views.route('/display_vouchers')
-def display_vouchers():
-    passengers = int(request.args.get('passengers'))
-    ticket_price = float(request.args.get('ticket_price'))
-    top_usable_vouchers = display_top_usable_vouchers(passengers, ticket_price)
-    return render_template('vouchers.html', vouchers=top_usable_vouchers)
+# @views.route('/display_vouchers')
+# def display_vouchers():
+#     passengers = int(request.args.get('passengers'))
+#     ticket_price = float(request.args.get('ticket_price'))
+#     top_usable_vouchers = display_top_usable_vouchers(passengers, ticket_price)
+#     print(passengers)
+#     print(ticket_price)
+#     print(top_usable_vouchers)
+#     return render_template('vouchers.html', vouchers=top_usable_vouchers)
 
 
 
